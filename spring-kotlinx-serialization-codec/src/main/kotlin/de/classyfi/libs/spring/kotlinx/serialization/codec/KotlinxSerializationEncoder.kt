@@ -6,9 +6,9 @@ import kotlinx.serialization.SerialFormat
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.StringFormat
 import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.list
 import kotlinx.serialization.modules.getContextual
 import kotlinx.serialization.serializerByTypeToken
 import kotlinx.serialization.toUtf8Bytes
