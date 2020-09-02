@@ -19,8 +19,6 @@ dependencies {
   annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
   implementation(platform("org.springframework:spring-framework-bom:$springVersion"))
 
-  implementation(kotlin("stdlib-jdk8"))
-
   implementation("org.springframework.boot:spring-boot")
   implementation("org.springframework.boot:spring-boot-autoconfigure")
   annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")

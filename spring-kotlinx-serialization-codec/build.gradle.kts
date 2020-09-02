@@ -14,8 +14,7 @@ dependencies {
   implementation(platform("org.springframework:spring-framework-bom:$springVersion"))
   implementation(platform("io.projectreactor:reactor-bom:$reactorVersion"))
 
-  implementation(kotlin("stdlib-jdk8"))
-  api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationRuntimeVersion")
+  api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationRuntimeVersion")
 
   implementation("org.springframework:spring-web")
   implementation("io.projectreactor:reactor-core")

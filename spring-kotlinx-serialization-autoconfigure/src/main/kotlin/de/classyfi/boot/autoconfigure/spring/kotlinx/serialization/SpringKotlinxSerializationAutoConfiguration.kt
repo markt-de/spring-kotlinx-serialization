@@ -2,7 +2,6 @@ package de.classyfi.boot.autoconfigure.spring.kotlinx.serialization
 
 import de.classyfi.libs.spring.kotlinx.serialization.codec.KotlinxSerializationEncoder
 import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.UnstableDefault
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -26,7 +25,6 @@ class SpringKotlinxSerializationAutoConfiguration {
   @ConditionalOnWebApplication(type = REACTIVE)
   class KotlinxSeralizationEncoderConfiguration {
 
-    @UnstableDefault
     @Bean
     @ConditionalOnMissingBean
     fun kotlinxSerializationEncoder(): KotlinxSerializationEncoder = KotlinxSerializationEncoder.defaultJsonEncoder()

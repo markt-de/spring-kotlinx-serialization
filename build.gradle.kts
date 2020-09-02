@@ -11,7 +11,7 @@ plugins {
 val kotlinVersion: String by project
 
 allprojects {
-  version = "0.0.1-${kotlinVersion}-SNAPSHOT"
+  version = "0.2.0-${kotlinVersion}-SNAPSHOT"
   group = "de.classyfi.libs"
 
   repositories {

@@ -1,17 +1,14 @@
 package de.classyfi.libs.spring.kotlinx.serialization.codec
 
 import kotlinx.serialization.BinaryFormat
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialFormat
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.StringFormat
-import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.modules.getContextual
-import kotlinx.serialization.serializerByTypeToken
-import kotlinx.serialization.toUtf8Bytes
+import kotlinx.serialization.serializer
 import org.reactivestreams.Publisher
 import org.springframework.core.ResolvableType
 import org.springframework.core.codec.AbstractEncoder
@@ -27,6 +24,7 @@ import reactor.core.publisher.Mono
 /**
  * @author Bernhard Frauendienst <bernhard.frauendienst@markt.de>
  */
+@ExperimentalSerializationApi
 class KotlinxSerializationEncoder private constructor(
   private val valueEncoder: ValueEncoder,
   vararg supportedMimeTypes: MimeType,
@@ -71,7 +69,7 @@ class KotlinxSerializationEncoder private constructor(
           }
         } else {
           Flux.from(inputStream).collectList().map {
-            bufferFactory.wrapEncodedValue(serializer.list, it, hints)
+            bufferFactory.wrapEncodedValue(ListSerializer(serializer), it, hints)
           }.flux()
         }
       }
@@ -99,8 +97,7 @@ class KotlinxSerializationEncoder private constructor(
                        streamingMediaTypes: List<MediaType> = DEFAULT_JSON_STREAMING_MEDIA_TYPES)
       = KotlinxSerializationEncoder(this, *supportedMimeTypes, streamingMediaTypes = streamingMediaTypes)
 
-    @UnstableDefault
-    fun defaultJsonEncoder() = Json(JsonConfiguration.Default).asEncoder()
+    fun defaultJsonEncoder() = Json.asEncoder()
 
     private val DEFAULT_JSON_MIME_TYPES = arrayOf(
       MediaType.APPLICATION_JSON,
@@ -116,23 +113,24 @@ class KotlinxSerializationEncoder private constructor(
   }
 }
 
+@ExperimentalSerializationApi
 private sealed class ValueEncoder(private val format: SerialFormat) {
   abstract fun <T> encodeValue(serializer: SerializationStrategy<T>, value: T): ByteArray
 
   fun getSerializer(elementType: ResolvableType): KSerializer<Any> {
     val type = elementType.type
     return (type as? Class<*>)?.let { cls ->
-      format.context.getContextual<Any>(cls.kotlin)
-    } ?: serializerByTypeToken(type)
+      format.serializersModule.getContextual(cls.kotlin::class) as KSerializer<Any>
+    } ?: serializer(type)
   }
 
   class FromString(private val format: StringFormat) : ValueEncoder(format) {
     override fun <T> encodeValue(serializer: SerializationStrategy<T>, value: T) =
-      format.stringify(serializer, value).toUtf8Bytes()
+      format.encodeToString(serializer, value).encodeToByteArray()
   }
 
   class FromBytes(private val format: BinaryFormat): ValueEncoder(format) {
     override fun <T> encodeValue(serializer: SerializationStrategy<T>, value: T) =
-      format.dump(serializer, value)
+      format.encodeToByteArray(serializer, value)
   }
 }
