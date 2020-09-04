@@ -4,6 +4,7 @@ import kotlinx.serialization.BinaryFormat
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialFormat
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.StringFormat
 import kotlinx.serialization.builtins.ListSerializer
@@ -46,7 +47,10 @@ class KotlinxSerializationEncoder private constructor(
       // TODO: cache this information
       valueEncoder.getSerializer(elementType)
       true
-    } catch (_: Exception) {
+    } catch (e: SerializationException) {
+      if (logger.isDebugEnabled) {
+        logger.debug("No serializer found for type $elementType: ${e.message}")
+      }
       false
     }
   }
@@ -118,10 +122,7 @@ private sealed class ValueEncoder(private val format: SerialFormat) {
   abstract fun <T> encodeValue(serializer: SerializationStrategy<T>, value: T): ByteArray
 
   fun getSerializer(elementType: ResolvableType): KSerializer<Any> {
-    val type = elementType.type
-    return (type as? Class<*>)?.let { cls ->
-      format.serializersModule.getContextual(cls.kotlin::class) as KSerializer<Any>
-    } ?: serializer(type)
+    return format.serializersModule.serializer(elementType.type)
   }
 
   class FromString(private val format: StringFormat) : ValueEncoder(format) {
