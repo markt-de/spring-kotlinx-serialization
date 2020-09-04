@@ -21,6 +21,12 @@ dependencies {
   api("org.springframework.boot:spring-boot-starter-webflux")
 }
 
+java {
+  targetCompatibility = JavaVersion.VERSION_1_8
+
+  withSourcesJar()
+}
+
 publishing {
   val mavenJava by publications.creating(MavenPublication::class) {
     from(components["java"])

@@ -31,14 +31,14 @@ tasks.withType<KotlinCompile> {
   kotlinOptions.jvmTarget = "1.8"
 }
 
-tasks.register<Jar>("sourcesJar") {
-  from(sourceSets.main.get().allJava)
-  archiveClassifier.set("sources")
+java {
+  targetCompatibility = JavaVersion.VERSION_1_8
+
+  withSourcesJar()
 }
 
 publishing {
   val mavenJava by publications.creating(MavenPublication::class) {
     from(components["java"])
-    artifact(tasks["sourcesJar"])
   }
 }
